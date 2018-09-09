@@ -33,27 +33,18 @@ function configure_zram_parameters() {
     MemTotalStr=`cat /proc/meminfo | grep MemTotal`
     MemTotal=${MemTotalStr:16:8}
 
-    low_ram=`getprop ro.config.low_ram`
-
-    # Zram disk - 75% for Go devices.
-    # For 512MB Go device, size = 384MB
-    # For 1GB Go device, size = 768MB
-    # Others - 512MB size
-    # And enable lz4 zram compression for Go devices
-    zram_enable=`getprop ro.vendor.qti.config.zram`
-    if [ "$zram_enable" == "true" ]; then
-        if [ $MemTotal -le 524288 ] && [ "$low_ram" == "true" ]; then
-            echo lz4 > /sys/block/zram0/comp_algorithm
-            echo 402653184 > /sys/block/zram0/disksize
-        elif [ $MemTotal -le 1048576 ] && [ "$low_ram" == "true" ]; then
-            echo lz4 > /sys/block/zram0/comp_algorithm
-            echo 805306368 > /sys/block/zram0/disksize
-        else
-            echo 536870912 > /sys/block/zram0/disksize
-        fi
-        mkswap /dev/block/zram0
-        swapon /dev/block/zram0 -p 32758
+    if [ $MemTotal -gt 4194304 ]; then
+        echo 1610612736 > /sys/block/zram0/disksize
+    elif [ $MemTotal -gt 3145728 ]; then
+        echo 805306368 > /sys/block/zram0/disksize
     fi
+    
+    echo lz4 > /sys/block/zram0/comp_algorithm
+    echo 4 > /sys/block/zram0/max_comp_streams
+    echo 60 > /proc/sys/vm/swappiness
+
+    mkswap /dev/block/zram0
+    swapon /dev/block/zram0 -p 32758
 }
 
 function configure_memory_parameters() {
@@ -106,7 +97,12 @@ else
     echo 70 > /sys/module/process_reclaim/parameters/pressure_max
     echo 30 > /sys/module/process_reclaim/parameters/swap_opt_eff
     echo 1 > /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk
-    if [ "$arch_type" == "aarch64" ] && [ $MemTotal -gt 2097152 ]; then
+    if [ "$arch_type" == "aarch64" ] && [ $MemTotal -gt 4194304 ]; then
+        echo 10 > /sys/module/process_reclaim/parameters/pressure_min
+        echo 1024 > /sys/module/process_reclaim/parameters/per_swap_size
+        echo "23040,28800,34560,40320,69120,100800" > /sys/module/lowmemorykiller/parameters/minfree
+        echo 81250 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
+    elif [ "$arch_type" == "aarch64" ] && [ $MemTotal -gt 2097152 ]; then
         echo 10 > /sys/module/process_reclaim/parameters/pressure_min
         echo 1024 > /sys/module/process_reclaim/parameters/per_swap_size
         echo "18432,23040,27648,32256,55296,80640" > /sys/module/lowmemorykiller/parameters/minfree
