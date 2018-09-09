@@ -14,6 +14,8 @@
 # limitations under the License.
 #
 
+# Gapps
+GAPPS_VARIANT := pico
 
 # Overlay
 DEVICE_PACKAGE_OVERLAYS += \
@@ -329,3 +331,17 @@ PRODUCT_PACKAGES += \
 $(call inherit-product, device/xiaomi/whyred/treble.mk)
 # Call the proprietary setup
 $(call inherit-product, vendor/xiaomi/whyred/whyred-vendor.mk)
+ 
+# Gapps
+GAPPS_FORCE_PACKAGE_OVERRIDES := true
+GAPPS_FORCE_MMS_OVERRIDES := true
+GAPPS_FORCE_DIALER_OVERRIDES := true
+
+GAPPS_PRODUCT_PACKAGES += CalculatorGoogle \
+	CalendarGooglePrebuilt \
+	GoogleContacts \
+	GoogleDialer \
+	PrebuiltDeskClockGoogle \
+	GoogleCalendarSyncAdapter
+	
+$(call inherit-product, vendor/opengapps/build/opengapps-packages.mk)
