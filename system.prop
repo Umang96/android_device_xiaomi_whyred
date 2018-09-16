@@ -172,7 +172,6 @@ ro.vendor.sensors.mot_detect=true
 ro.vendor.sensors.pug=true
 
 #Expose aux camera for below packages
-camera.aux.packagelist=org.codeaurora.snapcam,com.android.camera,com.qualcomm.qti.qmmi
 vendor.camera.aux.packagelist=com.android.camera
 camera.disable_shutter_sound.packagelist=com.android.camera
 #disable UBWC for camera
