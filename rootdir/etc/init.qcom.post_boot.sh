@@ -34,7 +34,7 @@ function configure_zram_parameters() {
     MemTotal=${MemTotalStr:16:8}
 
     if [ $MemTotal -gt 4194304 ]; then
-        echo 1610612736 > /sys/block/zram0/disksize
+        echo 1073741824 > /sys/block/zram0/disksize
     elif [ $MemTotal -gt 3145728 ]; then
         echo 805306368 > /sys/block/zram0/disksize
     fi
